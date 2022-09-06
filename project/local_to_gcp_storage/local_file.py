@@ -1,7 +1,13 @@
-import glob
-import os
+#-*- coding: utf-8 -*-
+
+# type hint
 from typing import List
 
+# file path, env
+import os
+
+# path name matching
+import glob
 
 class LocalFile:
     def __init__(self, *args):
@@ -37,6 +43,5 @@ class LocalFile:
         return file_list
 
 if(__name__ == "__main__"):
-    # local_tree = LocalFileTree(os.getcwd(), "")
-    local_tree = LocalFile(["venv"])
+    local_tree = LocalFile(["foo.bar.txt"])
     local_tree.get_file_list("project")

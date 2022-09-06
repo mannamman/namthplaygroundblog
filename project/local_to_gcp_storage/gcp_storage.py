@@ -1,18 +1,21 @@
 #-*- coding: utf-8 -*-
-"""
-스토리지의 파일들의 리스트를 불러오는 함수
-"""
-from typing import Dict, List
+
+# gco storage
 from google.oauth2 import service_account
 from google.cloud import storage
-from google.cloud.storage import Client, Blob, Bucket
-from google.cloud.exceptions import NotFound as blob_not_found
-import os
-from dotenv import load_dotenv
-import mimetypes
+
+# type hint
+from google.cloud.storage import Client, Blob
+from typing import List
+
+# progress bar
 from tqdm import tqdm
 
-load_dotenv()
+# file type
+import mimetypes
+
+# file path, env
+import os
 
 class Storage:
     def __init__(self):
@@ -103,16 +106,15 @@ class Storage:
                 file_list.append(f_name)
         return file_list
     
-    def run(self, weight: str, job_info: dict):
-        if(weight == "stroage"):
+    def run(self, focus: str, job_info: dict):
+        if(focus == "stroage"):
             self._del_local(job_info)
             self._download_files(job_info)
-        elif(weight == "local"):
+        elif(focus == "local"):
             self._del_storage(job_info)
             self._upload_files(job_info)
 
 if(__name__ == "__main__"):
-    # storage_tree = StorageFileTree("aiso_template", ".")
     storage_tree = Storage()
-    print(storage_tree.get_file_list("tf"))
+    print(storage_tree.get_file_list("targetdir"))
     

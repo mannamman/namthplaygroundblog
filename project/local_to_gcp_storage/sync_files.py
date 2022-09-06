@@ -1,11 +1,17 @@
 #-*- coding: utf-8 -*-
+
+# type hint
 from typing import List, Tuple
+
+# storage module
 from gcp_storage import Storage
+
+# local file module
 from local_file import LocalFile
 
 class Sync:
-    def __init__(self, weight: str, target: str, overwrite: str):
-        self.weight = weight
+    def __init__(self, focus: str, target: str, overwrite: str):
+        self.focus = focus
         self.overwrite = overwrite
         self.target = target
 
@@ -23,7 +29,7 @@ class Sync:
 
     def sync(self):
 
-        if(self.weight == "storage"):
+        if(self.focus == "storage"):
             # 로컬을 지우고, 스토리지 -> 로컬 다운로드
             add_list, del_list = self._storage_to_local()
         else:
@@ -31,18 +37,18 @@ class Sync:
             add_list, del_list = self._local_to_stroage()
 
         job_info = {
-            "weight" : self.weight,
+            "focus" : self.focus,
             "target": self.target,
             "add_list" : add_list,
             "del_list" : del_list
         }
 
-        self.storage_worker.run(self.weight, job_info)
+        self.storage_worker.run(self.focus, job_info)
 
 
     def _local_to_stroage(self) -> Tuple[List[str], List[str]]:
         """
-        weight == local
+        focus == local
         로컬을 기준으로 동기화(로컬 -> 스토리지)
         """
         # del_list는 스토리지에서 삭제할 목록
@@ -59,7 +65,7 @@ class Sync:
 
     def _storage_to_local(self) -> Tuple[List[str], List[str]]:
         """
-        weight == storage
+        focus == storage
         스토리지를 기준으로 동기화(스토리지 -> 로컬)
         """
         # del_list는 로컬에서 삭제할 파일 목록
@@ -75,6 +81,5 @@ class Sync:
 
 
 if(__name__ == "__main__"):
-    # sync = Sync("storage", "input_output_templates")
     sync = Sync("local", "", True)
     sync.sync()
