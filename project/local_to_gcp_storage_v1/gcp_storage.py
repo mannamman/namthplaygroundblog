@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 
-# gco storage
+# gcp storage
 from google.oauth2 import service_account
 from google.cloud import storage
 
@@ -46,9 +46,9 @@ class Storage:
         for del_f_path in pbar:
             blob_name = f"{self.storage_base_path}/{del_f_path}"
             blob = self.bucket.get_blob(blob_name)
-
+            # each file progress bar
             pbar.set_description(f"deleteing {blob_name}")
-
+            # storage file delete
             blob.delete()
     
     def _upload_files(self, job_info: dict):
@@ -60,12 +60,11 @@ class Storage:
             mime = self._get_content_type(upload_f_path)
             local_full_path = f"{self.local_base_path}/{upload_f_path}"
             blob = self.bucket.blob(blob_name)
-
             CACHE_CONTROL = "no-store"
             blob.cache_control = CACHE_CONTROL
-
+            # each file progress bar
             pbar.set_description(f"uploading {local_full_path}")
-
+            # file upload
             with open(local_full_path, "rb") as f:
                 blob.upload_from_file(f, content_type=mime)
             
@@ -82,9 +81,9 @@ class Storage:
             mime = self._get_content_type(download_f_path)
             blob_name = f"{storage_base_path}/{download_f_path}"
             blob = self.bucket.blob(blob_name)
-
+            # each file progress bar
             pbar.set_description(f"downloading {blob_name}")
-
+            # file download
             with open(local_full_path, "wb") as f:
                 self.client.download_blob_to_file(blob, f)
 
@@ -96,14 +95,15 @@ class Storage:
         pbar = tqdm(del_list)
         for del_f_path in pbar:
             full_path = f"{base_path}/{del_f_path}"
+            # each file progress bar
             pbar.set_description(f"deleteing {full_path}")
+            # local file delete
             if(os.path.exists(full_path) and os.path.isfile(full_path)):
                 os.remove(full_path)
 
 
     def get_file_list(self, target: str) -> List[str]:
         target_path = f"{self.storage_base_path}/{target}"
-
         file_list = list()
         blobs: List[Blob] = list(self.bucket.list_blobs(prefix=target_path))
         for blob in blobs:
