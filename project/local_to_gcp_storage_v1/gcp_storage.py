@@ -78,7 +78,6 @@ class Storage:
             mime = self._get_content_type(download_f_path)
             blob_name = f"{storage_base_path}{download_f_path}"
             blob = self.bucket.blob(blob_name)
-            print("downloads", blob_name)
             with open(local_full_path, "wb") as f:
                 self.client.download_blob_to_file(blob, f)
             pbar.set_description(f"downloading {blob_name}")
