@@ -47,9 +47,10 @@ class Storage:
             blob_name = f"{self.storage_base_path}/{del_f_path}"
             blob = self.bucket.get_blob(blob_name)
             # each file progress bar
-            pbar.set_description(f"deleteing {blob_name}")
+            pbar.set_description(f"deleting {blob_name}")
             # storage file delete
             blob.delete()
+        pbar.close()
     
     def _upload_files(self, job_info: dict):
         upload_list = job_info["add_list"]
@@ -67,6 +68,7 @@ class Storage:
             # file upload
             with open(local_full_path, "rb") as f:
                 blob.upload_from_file(f, content_type=mime)
+        pbar.close()
             
 
 
@@ -86,6 +88,7 @@ class Storage:
             # file download
             with open(local_full_path, "wb") as f:
                 self.client.download_blob_to_file(blob, f)
+        pbar.close()
 
 
     def _del_local(self, job_info: dict):
@@ -96,10 +99,11 @@ class Storage:
         for del_f_path in pbar:
             full_path = f"{base_path}/{del_f_path}"
             # each file progress bar
-            pbar.set_description(f"deleteing {full_path}")
+            pbar.set_description(f"deleting {full_path}")
             # local file delete
             if(os.path.exists(full_path) and os.path.isfile(full_path)):
                 os.remove(full_path)
+        pbar.close()
 
 
     def get_file_list(self, target: str) -> List[str]:
