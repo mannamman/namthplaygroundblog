@@ -21,7 +21,7 @@ parser = argparse.ArgumentParser(
 )
 
 parser.add_argument(
-    "--focus", required=True, choices=["local", "stroage"],
+    "--focus", required=True, choices=["local", "storage"],
     help="동기화의 중점을 선택합니다."
 )
 

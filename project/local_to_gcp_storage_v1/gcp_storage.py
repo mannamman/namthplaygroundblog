@@ -46,8 +46,10 @@ class Storage:
         for del_f_path in pbar:
             blob_name = f"{self.storage_base_path}/{del_f_path}"
             blob = self.bucket.get_blob(blob_name)
-            blob.delete()
+
             pbar.set_description(f"deleteing {blob_name}")
+
+            blob.delete()
     
     def _upload_files(self, job_info: dict):
         upload_list = job_info["add_list"]
@@ -58,40 +60,45 @@ class Storage:
             mime = self._get_content_type(upload_f_path)
             local_full_path = f"{self.local_base_path}/{upload_f_path}"
             blob = self.bucket.blob(blob_name)
-            ## cache contorl ##
-            # CACHE_CONTROL = "public, max-age=30"
+
             CACHE_CONTROL = "no-store"
             blob.cache_control = CACHE_CONTROL
+
+            pbar.set_description(f"uploading {local_full_path}")
+
             with open(local_full_path, "rb") as f:
                 blob.upload_from_file(f, content_type=mime)
-            pbar.set_description(f"uploading {local_full_path}")
+            
 
 
     def _download_files(self, job_info: dict):
         download_list = job_info["add_list"]
-        storage_base_path = job_info["storage_base_path"]
-        local_base_path = job_info["local_base_path"]
+        storage_base_path = self.storage_base_path
+        local_base_path = self.local_base_path
         print(f"DOWNLOAD START(total : {len(download_list)})")
         pbar = tqdm(download_list)
         for download_f_path in pbar:
-            local_full_path = f"{local_base_path}{download_f_path}"
+            local_full_path = f"{local_base_path}/{download_f_path}"
             mime = self._get_content_type(download_f_path)
-            blob_name = f"{storage_base_path}{download_f_path}"
+            blob_name = f"{storage_base_path}/{download_f_path}"
             blob = self.bucket.blob(blob_name)
+
+            pbar.set_description(f"downloading {blob_name}")
+
             with open(local_full_path, "wb") as f:
                 self.client.download_blob_to_file(blob, f)
-            pbar.set_description(f"downloading {blob_name}")
+
 
     def _del_local(self, job_info: dict):
         del_list = job_info["del_list"]
-        base_path = job_info["local_base_path"]
+        base_path = self.local_base_path
         print(f"DELETE LOCAL START(total : {len(del_list)})")
         pbar = tqdm(del_list)
         for del_f_path in pbar:
-            full_path = f"{base_path}{del_f_path}"
+            full_path = f"{base_path}/{del_f_path}"
+            pbar.set_description(f"deleteing {full_path}")
             if(os.path.exists(full_path) and os.path.isfile(full_path)):
                 os.remove(full_path)
-            pbar.set_description(f"deleteing {full_path}")
 
 
     def get_file_list(self, target: str) -> List[str]:
@@ -106,7 +113,7 @@ class Storage:
         return file_list
     
     def run(self, focus: str, job_info: dict):
-        if(focus == "stroage"):
+        if(focus == "storage"):
             self._del_local(job_info)
             self._download_files(job_info)
         elif(focus == "local"):

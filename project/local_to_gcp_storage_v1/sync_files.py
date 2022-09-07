@@ -42,7 +42,6 @@ class Sync:
             "add_list" : add_list,
             "del_list" : del_list
         }
-
         self.storage_worker.run(self.focus, job_info)
 
 
