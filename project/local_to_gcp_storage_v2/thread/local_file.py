@@ -1,11 +1,8 @@
 #-*- coding: utf-8 -*-
-
 # type hint
 from typing import List
-
 # file path, env
 import os
-
 # path name matching
 import glob
 

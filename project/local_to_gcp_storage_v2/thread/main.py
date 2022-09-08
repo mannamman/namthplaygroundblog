@@ -1,17 +1,12 @@
 #-*- coding: utf-8 -*-
-
 # main module
 from sync_files import Sync
-
 # user input
 import argparse
-
 # check running time
 import time
-
 # load .env file
 from dotenv import load_dotenv
-
 # .env file data to environment variable
 load_dotenv()
 

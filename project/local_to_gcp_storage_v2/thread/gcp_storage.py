@@ -1,5 +1,4 @@
 #-*- coding: utf-8 -*-
-
 # gcp storage
 from google.oauth2 import service_account
 from google.cloud import storage
