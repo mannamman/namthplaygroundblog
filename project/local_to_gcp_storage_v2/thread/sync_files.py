@@ -5,6 +5,7 @@ from typing import List, Tuple
 from file_worker import Worker
 # thread
 from threading import Thread
+from tqdm import tqdm
 from math import ceil
 
 
@@ -78,6 +79,12 @@ class Sync:
 
         add_files_chunk = make_chunk(add_list, len(add_list), self.chunk_size)
         del_files_chunk = make_chunk(del_list, len(del_list), self.chunk_size)
+
+        add_files_tqdm = tqdm(add_list)
+        del_files_tqdm = tqdm(del_list)
+
+        add_files_tqdm.set_description("ADD FILES")
+        del_files_tqdm.set_description("DLETE FILES")
         
         threads: List[Thread] = []
 
@@ -93,7 +100,7 @@ class Sync:
         for del_chunk in del_files_chunk:
             thread = Thread(
                 target=del_target,
-                args=(thread_idx, del_chunk)
+                args=(thread_idx, del_chunk, del_files_tqdm)
             )
             thread_idx += 1
             threads.append(thread)
@@ -101,19 +108,27 @@ class Sync:
         for add_chunk in add_files_chunk:
             thread = Thread(
                 target=add_target,
-                args=(thread_idx, add_chunk)
+                args=(thread_idx, add_chunk, add_files_tqdm)
             )
             thread_idx += 1
             threads.append(thread)
+
+        add_files_tqdm.write(f"UPLOAD START(total : {len(add_list)})")
+        del_files_tqdm.write(f"DELETE START(total : {len(del_list)})")
 
         for thread in threads:
             thread.start()
 
         for thread in threads:
             thread.join()
+        
+        add_files_tqdm.close()
+        del_files_tqdm.close()
 
 if(__name__ == "__main__"):
     from dotenv import load_dotenv
     load_dotenv()
     sync = Sync("local", "", True)
     sync.sync()
+
+
