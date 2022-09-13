@@ -42,4 +42,4 @@ if(__name__ == "__main__"):
     start = time.time()
     syncer = Sync(args.focus, args.target, args.ignore, args.overwrite)
     syncer.sync()
-    print(f"sync done ...\nrunning time : {round((time.time() - start), 2)}")
+    print(f"Sync done ...\nrunning time : {round((time.time() - start), 2)} sec")
