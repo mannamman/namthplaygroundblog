@@ -8,7 +8,7 @@ from threading import Thread
 from math import ceil
 
 
-def make_chunk(files :list, file_cnt :int, chunk_size :int) -> List[List[int]]:
+def make_chunk(files :List[str], file_cnt :int, chunk_size :int) -> List[List[str]]:
     return list(
         map(
             lambda x: files[x*chunk_size:x*chunk_size+chunk_size],
