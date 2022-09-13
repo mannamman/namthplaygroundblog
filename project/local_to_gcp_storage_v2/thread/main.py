@@ -26,6 +26,11 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--ignore", required=False, default=None, nargs='+',
+    help="동기화를 하지않을 파일 혹은 폴더를 지정합니다."
+)
+
+parser.add_argument(
     "--overwrite", default=False, action="store_true",
     help="업로드, 다운로드시 이미 있는 파일을 덮어씌울지를 결정합니다. True : 덮어쓰기, False : 덮어쓰지 않음"
 )
@@ -35,6 +40,6 @@ args = parser.parse_args()
 
 if(__name__ == "__main__"):
     start = time.time()
-
-    Sync(args.focus, args.target, args.overwrite).sync()
+    syncer = Sync(args.focus, args.target, args.ignore, args.overwrite)
+    syncer.sync()
     print(f"sync done ...\nrunning time : {round((time.time() - start), 2)}")

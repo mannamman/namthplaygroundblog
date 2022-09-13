@@ -1,10 +1,8 @@
 #-*- coding: utf-8 -*-
 # type hint
 from typing import List, Tuple
-# storage module
-from gcp_storage import Storage
-# local file module
-from local_file import LocalFile
+# file worker
+from file_worker import Worker
 # thread
 from threading import Thread
 from math import ceil
@@ -19,16 +17,14 @@ def make_chunk(files :list, file_cnt :int, chunk_size :int) -> List[List[int]]:
     )
 
 class Sync:
-    def __init__(self, focus: str, target: str, overwrite: str):
+    def __init__(self, focus: str, target: str, ignore: List[str], overwrite: str):
         self.focus = focus
         self.overwrite = overwrite
         self.target = target
 
-        self.storage_worker = Storage()
-        self.local_worker = LocalFile()
+        self.file_worker = Worker(ignore=ignore)
 
-        self.storage_file_list = self.storage_worker.get_file_list(target)
-        self.local_file_list = self.local_worker.get_file_list(target)
+        self.storage_file_list, self.local_file_list = self.file_worker.get_file_list(target)
 
         self.chunk_size = 5
 
@@ -88,11 +84,11 @@ class Sync:
         thread_idx = 1
 
         if(self.focus == "storage"):
-            del_target = self.storage_worker.delete_local_files
-            add_target = self.storage_worker.download_files
+            del_target = self.file_worker.delete_local_files
+            add_target = self.file_worker.download_files
         elif(self.focus == "local"):
-            del_target = self.storage_worker.delete_storage_files
-            add_target = self.storage_worker.upload_files
+            del_target = self.file_worker.delete_storage_files
+            add_target = self.file_worker.upload_files
 
         for del_chunk in del_files_chunk:
             thread = Thread(
@@ -109,7 +105,6 @@ class Sync:
             )
             thread_idx += 1
             threads.append(thread)
-        
 
         for thread in threads:
             thread.start()
@@ -118,5 +113,7 @@ class Sync:
             thread.join()
 
 if(__name__ == "__main__"):
+    from dotenv import load_dotenv
+    load_dotenv()
     sync = Sync("local", "", True)
     sync.sync()
