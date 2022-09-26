@@ -6,6 +6,9 @@ __pycache__/
 # cred
 cred/
 
+# resources
+resources/
+
 # env var
 .env
 
