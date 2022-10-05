@@ -48,4 +48,4 @@ if(__name__ == "__main__"):
         print(f"hash file init start!\n{args.focus=}, {args.target=}, {args.ignore=}")
         syncer = Sync(args.focus, args.target, args.ignore)
         syncer.init_hash()
-    print(f"program done ... running time : {round((time.time() - start), 2)} sec")
+    print(f"program done ...\nrunning time : {round((time.time() - start), 2)} sec")
