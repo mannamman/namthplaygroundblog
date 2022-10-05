@@ -39,12 +39,13 @@ if(__name__ == "__main__"):
     args = parser.parse_args()
     if(args.init):
         if(args.focus is None):
-            print("focus need")
+            print(f"focus need. {args.focus=}")
             exit(0)
+        print(f"sync start!\n{args.focus=}, {args.target=}, {args.ignore=}")
         syncer = Sync(args.focus, args.target, args.ignore)
         syncer.sync()
-        print("symc")
     else:
+        print(f"hash file init start!\n{args.focus=}, {args.target=}, {args.ignore=}")
         syncer = Sync(args.focus, args.target, args.ignore)
         syncer.init_hash()
-    print(f"Sync done ...\nrunning time : {round((time.time() - start), 2)} sec")
+    print(f"program done ...\nrunning time : {round((time.time() - start), 2)} sec")

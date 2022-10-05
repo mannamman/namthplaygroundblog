@@ -17,6 +17,7 @@ import glob
 import hashlib
 import base64
 import binascii
+import json
 
 class Worker:
     def __init__(self, ignore: List[str]):
@@ -32,6 +33,9 @@ class Worker:
         self.bucket = self.client.get_bucket(os.getenv("gooogle_bucket_name"))
         # hash
         self.file_read_size = 65536
+        # hash file
+        self.local_hash_json_path = f"{self.local_base_path}/sync/local_hash.json"
+        self.storage_hash_json_path = f"{self.local_base_path}/sync/storage_hash.json"
 
     # 인증정보 로드
     def _load_cred(self) -> Client:
@@ -141,7 +145,31 @@ class Worker:
         self._get_local_file_list(local_target_path, local_file_list)
 
         return storage_file_list, local_file_list
+    
+    def init_hash_json(self):
+        local_base_path = self.local_base_path
+        local_file_list = []
+        self._get_local_file_list(local_base_path, local_file_list)
+        local_file_hash = self.get_local_hash(local_file_list)
         
+        storage_target_path = ""
+        storage_file_list = self._get_storage_file_list(storage_target_path)
+        storage_file_hash = self.get_storage_hash(storage_file_list)
+        
+        with open(self.local_hash_json_path, "w") as f:
+            f.write(json.dumps(local_file_hash, ensure_ascii=False, indent=4))
+        
+        with open(self.storage_hash_json_path, "w") as f:
+            f.write(json.dumps(storage_file_hash, ensure_ascii=False, indent=4))
+    
+    def read_hash_json(self) -> Tuple[Dict[str,str],Dict[str,str]]:
+        with open(self.local_hash_json_path, "r") as f:
+            local_file_hash = json.loads(f.read())
+        
+        with open(self.storage_hash_json_path, "r") as f:
+            storage_file_hash = json.loads(f.read())
+        
+        return local_file_hash, storage_file_hash
 
 if(__name__ == "__main__"):
     from dotenv import load_dotenv

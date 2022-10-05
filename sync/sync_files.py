@@ -30,37 +30,37 @@ class Sync:
         self.chunk_size = 5
 
     def _get_add_del_list(self) -> Tuple[List[str], List[str]]:
-        local_hash = self.file_worker.get_local_hash(self.local_file_list)
-        storage_hash = self.file_worker.get_storage_hash(self.storage_file_list)
+        # hash file 읽기
+        local_hash_json, storage_hash_json = self.file_worker.read_hash_json()
 
         add_list = []
         del_list = []
 
         if(self.focus == "storage"):
             # 로컬을 지우고, 스토리지 -> 로컬 다운로드
-            for storage_file in storage_hash:
-                if(storage_file  in local_hash):
-                    if(storage_hash[storage_file] == local_hash[storage_file]):
+            for storage_file, storage_hash in storage_hash_json.items():
+                if(storage_file not in local_hash_json):
+                    add_list.append(storage_file)
+                else:
+                    if(storage_hash == local_hash_json[storage_file]):
                         continue
                     else:
                         add_list.append(storage_file)
-                else:
-                    add_list.append(storage_file)
-            for local_file in local_hash:
-                if(local_file not in storage_hash):
+            for local_file, local_hash in local_hash_json.items():
+                if(local_file not in storage_hash_json):
                     del_list.append(local_file)
         else:
             # 스토리지를 지우고, 로컬 -> 스토리지 업로드
-            for local_file in local_hash:
-                if(local_file  in storage_hash):
-                    if(local_hash[local_file] == storage_hash[local_file]):
+            for local_file, local_hash in local_hash_json.items():
+                if(local_file not in storage_hash_json):
+                    add_list.append(local_file)
+                else:
+                    if(local_hash == storage_hash_json[local_file]):
                         continue
                     else:
                         add_list.append(local_file)
-                else:
-                    add_list.append(local_file)
-            for storage_file in storage_hash:
-                if(storage_file not in local_hash):
+            for storage_file, storage_hash in storage_hash_json.items():
+                if(storage_file not in local_hash_json):
                     del_list.append(storage_file)
 
         return add_list, del_list
@@ -125,6 +125,9 @@ class Sync:
         # tqdm 객체 닫기
         add_files_tqdm.close()
         del_files_tqdm.close()
+
+    def init_hash(self):
+        self.file_worker.init_hash_json()
 
 if(__name__ == "__main__"):
     from dotenv import load_dotenv
